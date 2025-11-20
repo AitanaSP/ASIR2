@@ -4,21 +4,25 @@ include_once 'constantes.php';
 
 function getConexionPDO()
 {
-	
+	$usuarioCorrecto = new PDO('mysql:host=localhost;dbname=libros2', $usuario, $password);
 }
 
 function getConexionPDO_sin_bbdd()
 {
-    
+    $usuarioCorrectoNODB = new PDO('mysql:host=localhost', $usuario, $password);
 }
 
 function getConexionMySQLi()
 {
-    
+    $usuarioCorrecto_MySQLi = new mysqli();
+
+    $usuarioCorrecto_MySQLi->connect('localhost', 'localhost', '', 'libros2');
 }
 function getConexionMySQLi_sin_bbdd()
 {
-  
+    $usuarioCorrecto_MySQLi = new mysqli();
+
+    $usuarioCorrecto_MySQLi->connect('localhost', 'localhost', '');
 }
 
 

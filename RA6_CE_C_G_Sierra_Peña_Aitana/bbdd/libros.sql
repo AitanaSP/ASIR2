@@ -60,6 +60,7 @@ CREATE TABLE `logins` (
 
 INSERT INTO `logins` (`usuario`, `passwd`) VALUES
 ('david', '172522ec1028ab781d9dfd17eaca4427'),
+('aitana', 'aitana'),
 ('nieves', 'c45f3fc0f92e983dea35e4b15213e6d7');
 
 --
