@@ -4,8 +4,12 @@ include_once 'constantes.php';
 
 function getConexionPDO()
 {
-	$usuarioCorrecto = new PDO('mysql:host=localhost;dbname=libros2', $usuario, $password);
+    global $usuario, $password;
+        $conexionPDO = new PDO('mysql:host=localhost;dbname=libros2', $usuario, $password);
+        return $conexionPDO;
 }
+
+
 
 function getConexionPDO_sin_bbdd()
 {
@@ -48,19 +52,24 @@ function crearTablas($basedatos) {
 
 function usuarioCorrecto_MySQLi($usuario, $password)
 {
-   
+
 }
 
 function usuarioCorrecto($usuario, $password)
 {
-  
-}
+ $checkusuario = getConexionPDO();
+    $checkusuario = $checkusuario->query("SELECT * FROM logins WHERE usuario='$usuario'");
+    if ($checkusuario->rowCount() == 1)
+    {
+        $
+} 
+
 
 
 
 function registrarUsuario_MySQLi($usuario, $password)
 {
-  
+
         
 }
 
