@@ -41,11 +41,26 @@ function crearTablas_MySQLi($basedatos){
 
 
 function crearBBDD($basedatos) {
-   
+
+    $conexionPDO = getConexionPDO();
+
+     $sql = "CREATE DATABASE IF NOT EXISTS $basedatos";
+     $resultado = $conexionPDO->query($sql);
 }
 
 function crearTablas($basedatos) {
   
+    $conexionPDO = getConexionPDO();
+
+    $sqlarchivo = file_get_contents('RA6_CE_C_G_Sierra_Peña_Aitana\bbdd\libros.sql');
+
+    $conexionPDO->exec($sqlarchivo);
+
+        echo "Base de datos, tablas y datos creados correctamente.";
+
+
+
+    $resultado = $conexionPDO->query($sql);
 }
 
 
@@ -135,24 +150,34 @@ function getLibrosTitulo_MySQLi()
 
 function getLibrosTitulo()
 {
-   
+    $conexionPDO = getConexionPDO();
+
+    
+    $consulta = "SELECT titulo, numero_ejemplar FROM libros";
+    $datos = $conexionPDO->query($consulta);
+
+    if($conexionPDO->query($consulta)){
+        $libro = $datos->fetchAll(PDO::FETCH_COLUMN);
+        return $libro;
+    }
 }
 
 
 
-function borrarLibro($numeroEjemplar)
+function borrarLibro($numero_ejemplar)
 {
     $conexionPDO = getConexionPDO();
     if($_SERVER["REQUEST_METHOD"] == "POST"){
-    
-}
 
-    $sql = "DELETE FROM libros WHERE numero_ejemplar = '$numeroEjemplar'";
+    $libro = $numero_ejemplar;
+        $mensaje = getLibrosPrecio($libro);
+
+    $sql = "DELETE FROM libros WHERE numero_ejemplar = '$numero_ejemplar'";
     if ($conexionPDO->query($sql)) {
         echo "Libro borrado correctamente";
-       $mensaje = getLibrosPrecio($numeroEjemplar);
         return $mensaje;
 
+    }
 }
 }
 
@@ -182,21 +207,33 @@ function arrayFlotante($array) {
 
 function modificarLibro($numero_ejemplar, $precio)
 {
-  
+
 }
 
 
 
 function modificarLibroAnyo($numero_ejemplar, $anyo_edicion)
 {
-    
- 
+{
+    $conexionPDO = getConexionPDO();
+
+    if (is_array($anyo_edicion)) {
+        $anyo_edicion = $anyo_edicion[0];
+    }
+    if (is_array($numero_ejemplar)) {
+        $numero_ejemplar = $numero_ejemplar[0];
+    }
+  
+    $consulta = "UPDATE libros SET anyo_edicion = $anyo_edicion WHERE numero_ejemplar = $numero_ejemplar";
+     if ($conexionPDO->query($consulta)) {
+
+       $librosanyos = $consulta;
+       $libroanyo = $anyo_edicion;
+        return $librosanyos;
+        return $libroanyo;
+     }
 }
-
-
-
-
-
+}
 
 function getLibrosPrecio_MySQLi($libro)
 {
@@ -205,7 +242,7 @@ function getLibrosPrecio_MySQLi($libro)
 
 function getLibrosAnyo_MySQLi($libro)
 {
-    /*La tabla libros     * */
+    
   
 }
 
@@ -217,19 +254,30 @@ function getLibrosPrecio($libro)
     
     $numero_ejemplar = $libro;
     
-    $sql = "SELECT precio FROM libros WHERE numero_ejemplar = '$libro'";
+    $sql = "SELECT precio FROM libros WHERE numero_ejemplar = '$numero_ejemplar'";
+    $resultado = $conexionPDO->query($sql);
 
-     $resultado = $conexionPDO->query($sql);
-    if ($conexionPDO->query($sql)) {
-        $mensaje = $resultado->fetchColumn();
-        return $mensaje;
-}
+    if ($resultado) {
+        $precio = $resultado->fetchColumn();
+
+        
+    }
+return $precio;
 }
 }
 
 function getLibrosAnyo($libro)
 {
+ $conexionPDO = getConexionPDO();
+
     
+$consulta = "SELECT numero_ejemplar, titulo, anyo_edicion FROM libros WHERE titulo = '$libro'";
+$datos = $conexionPDO->query($consulta);
+
+    if($datos){
+        $libroanyo = $datos;
+        return $libroanyo;
+    }
 }
 
 
