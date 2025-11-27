@@ -29,7 +29,7 @@ if(!isset($_SESSION["usuario"]) || $_SESSION["usuario"]==null){
         <div id="menu">
             <ul>
                 <li><a href="libros.php">Alta Libros</a></li>
-                <li><a href="libros_actualizar.php">Acualizar Libros</a></li>
+                <li><a href="libros_actualizar.php">Actualizar Libros</a></li>
                 <li><a href="libros_borrar.php">Baja Libros</a></li>
             </ul>
         </div>
