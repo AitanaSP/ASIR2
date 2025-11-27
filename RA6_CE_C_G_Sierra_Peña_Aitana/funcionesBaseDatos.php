@@ -5,7 +5,7 @@ include_once 'constantes.php';
 function getConexionPDO()
 {
     try{
-        $conexionPDO = new PDO('mysql:host=localhost;dbname=libros2','root','');
+        $conexionPDO = new PDO('mysql:host=localhost;dbname=libros','root','ajo');
         return $conexionPDO;
 
     } catch (PDOException $e) {
@@ -17,7 +17,7 @@ function getConexionPDO()
 function getConexionPDO_sin_bbdd()
 {
         try{
-        $conexionPDO = new PDO('mysql:host=localhost;dbname=','root','');
+        $conexionPDO = new PDO('mysql:host=localhost;dbname=','root','ajo');
         return $conexionPDO;
 
     } catch (PDOException $e) {
@@ -28,7 +28,7 @@ function getConexionPDO_sin_bbdd()
 
 function getConexionMySQLi()
 {
-       $conexion = new mysqli("localhost", "root", "", "libros2");
+       $conexion = new mysqli("localhost", "root", "ajo", "libros");
 
     if ($conexion->connect_errno) {
         echo "Error al conectar con la base de datos: " . $conexion->connect_error;
@@ -39,7 +39,7 @@ function getConexionMySQLi()
 }
 function getConexionMySQLi_sin_bbdd()
 {
-     $conexion = new mysqli("localhost", "root", "", "");
+     $conexion = new mysqli("localhost", "root", "ajo", "");
 
     if ($conexion->connect_errno) {
         echo "Error al conectar con la base de datos: " . $conexion->connect_error;
@@ -58,7 +58,6 @@ function crearBBDD_MySQLi($basedatos){
         return false;
     }
 
-    // Crear la base de datos
     $sql = "CREATE DATABASE IF NOT EXISTS $basedatos";
     $resultado = $conexion->query($sql);
 
@@ -231,7 +230,7 @@ function getLibros_MySQLi()
     $datos = $conexion->query($consulta);
 
     if ($datos) {
-        // Convertir el resultado a array de objetos (equivalente a FETCH_OBJ)
+
         $libros = [];
         while ($fila = $datos->fetch_object()) {
             $libros[] = $fila;
@@ -427,6 +426,7 @@ function getLibrosPrecio_MySQLi($libro)
         $resultado = $conexion->query($sql);
 
         if ($resultado) {
+
             $fila = $resultado->fetch_row();
             if ($fila) {
                 return $fila[0];
