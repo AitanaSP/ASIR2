@@ -22,7 +22,7 @@
        
 	   <?php 
 	   ini_set("display_errors",true);
-	   include_once './php/FuncionesBaseDatos.php';
+	   include_once './php/funcionesBaseDatos.php';
 	  
 	   $basedatos= "libros4";
 	   //$basedatos= DATABASE;

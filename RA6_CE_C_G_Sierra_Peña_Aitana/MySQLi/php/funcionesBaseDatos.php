@@ -2,33 +2,11 @@
 
 include_once 'constantes.php';
 
-function getConexionPDO()
-{
-    try{
-        $conexionPDO = new PDO('mysql:host=localhost;dbname=libros2','root','');
-        return $conexionPDO;
-
-    } catch (PDOException $e) {
-        echo "Error al conectar con la base de datos: " . $e->getMessage();
-        return false;
-    }
-}
-
-function getConexionPDO_sin_bbdd()
-{
-        try{
-        $conexionPDO = new PDO('mysql:host=localhost;dbname=','root','');
-        return $conexionPDO;
-
-    } catch (PDOException $e) {
-        echo "Error al conectar con la base de datos: " . $e->getMessage();
-        return false;
-    }
-}
-
 function getConexionMySQLi()
 {
-       $conexion = new mysqli("localhost", "root", "", "libros2");
+    $basedatos = 'libros4';
+
+       $conexion = new mysqli("localhost", "root", "", $basedatos);
 
     if ($conexion->connect_errno) {
         echo "Error al conectar con la base de datos: " . $conexion->connect_error;
@@ -58,7 +36,7 @@ function crearBBDD_MySQLi($basedatos){
         return false;
     }
 
-    // Crear la base de datos
+
     $sql = "CREATE DATABASE IF NOT EXISTS $basedatos";
     $resultado = $conexion->query($sql);
 
@@ -67,49 +45,74 @@ function crearBBDD_MySQLi($basedatos){
         return false;
     }
 
-    return true;
+    return 0;
 }
 
 function crearTablas_MySQLi($basedatos){
-  
-      $sqlarchivo = file_get_contents('RA6_CE_C_G_Sierra_Peña_Aitana/bbdd/libros.sql');
+ $conexion = getConexionMySQLi();
 
-    if ($sqlarchivo === false) {
-        return false;
-    }
-
-    if ($conexion->multi_query($sqlarchivo)) {
-
-        while ($conexion->more_results() && $conexion->next_result()) {
-        }
-
-        return true;
-
-    } else {
-        echo "Error al ejecutar el archivo SQL: " . $conexion->error;
-        return false;
-    }
+if (!$conexion) {
+    die("No hay conexión con la base de datos.");
 }
 
-function crearBBDD($basedatos) {
 
-    $conexionPDO = getConexionPDO();
+$sql = "
+    CREATE TABLE IF NOT EXISTS libros (
+        numero_ejemplar INT(11) NOT NULL AUTO_INCREMENT,
+        titulo VARCHAR(50) NOT NULL,
+        anyo_edicion INT(11) NOT NULL,
+        precio DECIMAL(10,2) NOT NULL,
+        fecha_adquisicion DATE NOT NULL,
+        PRIMARY KEY (numero_ejemplar)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+";
 
-     $sql = "CREATE DATABASE IF NOT EXISTS $basedatos";
-     $resultado = $conexionPDO->query($sql);
+if (!$conexion->query($sql)) {
+    die("Error creando tabla libros: " . $conexion->error);
+
+    $sql = "
+    INSERT INTO libros (titulo, anyo_edicion, precio, fecha_adquisicion)
+    VALUES 
+        ('Harry', 2000, 6.00, '2022-09-06'),
+        ('Nieves', 1983, 200.00, '2022-12-01');
+";
+
+if (!$conexion->query($sql)) {
+    die("Error insertando libros: " . $conexion->error);
+}
 }
 
-function crearTablas($basedatos) {
-  
-    $conexionPDO = getConexionPDO();
 
-    $sqlarchivo = file_get_contents('RA6_CE_C_G_Sierra_Peña_Aitana\bbdd\libros.sql');
 
-    $conexionPDO->exec($sqlarchivo);
+$sql = "
+    CREATE TABLE IF NOT EXISTS logins (
+        usuario VARCHAR(50) NOT NULL,
+        passwd CHAR(32) NOT NULL,
+        PRIMARY KEY (usuario)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+";
 
-    $resultado = $conexionPDO->query($sqlarchivo);
+if (!$conexion->query($sql)) {
+    die("Error creando tabla logins: " . $conexion->error);
+    $sql = "
+    INSERT INTO logins (usuario, passwd)
+    VALUES
+        ('david', '172522ec1028ab781d9dfd17eaca4427'),
+        ('aitana', 'aitana'),
+        ('nieves', 'c45f3fc0f92e983dea35e4b15213e6d7');
+";
+
+if (!$conexion->query($sql)) {
+    die("Error insertando logins: " . $conexion->error);
+}
 }
 
+
+
+
+$conexion->close();
+ return 1;
+}
 
 function usuarioCorrecto_MySQLi($usuario, $password)
 {
@@ -133,23 +136,6 @@ function usuarioCorrecto_MySQLi($usuario, $password)
     return false;
 }
 
-function usuarioCorrecto($usuario, $password)
-{
-
-    $conexionPDO = getConexionPDO();
-    if($_SERVER["REQUEST_METHOD"] == "POST"){
-
-    $sql = "SELECT usuario, passwd FROM logins WHERE usuario = '$usuario' AND passwd = '$password'";
-
-     $resultado = $conexionPDO->query($sql);
-
-
-    if ($resultado && $resultado->rowCount() > 0) {
-        return true;
-}
-}
-}
-
 function registrarUsuario_MySQLi($usuario, $password)
 {
       $conexion = getConexionMySQLi();
@@ -171,17 +157,7 @@ function registrarUsuario_MySQLi($usuario, $password)
         
 }
 
-function registrarUsuario($usuario, $password)
-{
-    $conexionPDO = getConexionPDO();
-    if($_SERVER["REQUEST_METHOD"] == "POST"){
 
-    $sqlreg = "INSERT INTO logins VALUES ('$usuario', '$password')";
-    if ($conexionPDO->query($sqlreg)) {
-        echo "Usuario registrado correctamente";
-}
-}
-}
 function insertarLibro_MySQLi($titulo, $anyo, $precio, $fechaAdquisicion)
 {
     $conexion = getConexionMySQLi();
@@ -206,18 +182,6 @@ function insertarLibro_MySQLi($titulo, $anyo, $precio, $fechaAdquisicion)
 }
 
 
-function insertarLibro($titulo, $anyo, $precio, $fechaAdquisicion)
-{
-    $conexionPDO = getConexionPDO();
-    if($_SERVER["REQUEST_METHOD"] == "POST"){
-
-    $sqlreglib = "INSERT INTO  libros (titulo, anyo_edicion, precio, fecha_adquisicion) VALUES ('$titulo', '$anyo', '$precio', '$fechaAdquisicion')";
-    if ($conexionPDO->query($sqlreglib)) {
-        echo "Libro registrado correctamente";
-        return true;
-}
-}
-}
 
 function getLibros_MySQLi()
 {
@@ -242,19 +206,6 @@ function getLibros_MySQLi()
     return false;
 }
 
-function getLibros()
-{
-    $conexionPDO = getConexionPDO();
-
-    
-    $consulta = "SELECT numero_ejemplar, titulo, anyo_edicion, precio, fecha_adquisicion FROM libros";
-    $datos = $conexionPDO->query($consulta);
-
-    if($datos){
-        $libro = $datos->fetchAll(PDO::FETCH_OBJ);
-        return $libro;
-    }
-}
 
 function getLibrosTitulo_MySQLi()
 {
@@ -281,40 +232,7 @@ function getLibrosTitulo_MySQLi()
     
 }
 
-function getLibrosTitulo()
-{
-    $conexionPDO = getConexionPDO();
-
-    
-    $consulta = "SELECT titulo, numero_ejemplar FROM libros";
-    $datos = $conexionPDO->query($consulta);
-
-    if($conexionPDO->query($consulta)){
-        $libro = $datos->fetchAll(PDO::FETCH_COLUMN);
-        return $libro;
-    }
-}
-
-
-
-function borrarLibro($numero_ejemplar)
-{
-    $conexionPDO = getConexionPDO();
-    if($_SERVER["REQUEST_METHOD"] == "POST"){
-
-    $libro = $numero_ejemplar;
-        $mensaje = getLibrosPrecio($libro);
-
-    $sql = "DELETE FROM libros WHERE numero_ejemplar = '$numero_ejemplar'";
-    if ($conexionPDO->query($sql)) {
-        echo "Libro borrado correctamente";
-        return $mensaje;
-
-    }
-}
-}
-
-function borrarLibro_MySQLi($numeroEjemplar)
+function borrarLibro_MySQLi($numero_ejemplar)
 {
    $conexion = getConexionMySQLi();
 
@@ -324,13 +242,12 @@ function borrarLibro_MySQLi($numeroEjemplar)
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-        $numero_ejemplar;
-        $mensaje = getLibrosPrecio_MySQLi($libro);
+        $libro = getLibros_MySQLi(); 
+        $mensaje = getLibrosPrecio_MySQLi($numero_ejemplar);
 
-        $sql = "DELETE FROM libros WHERE numero_ejemplar = '$numero_ejemplar'";
+        $sql = "DELETE FROM libros WHERE numero_ejemplar = $numero_ejemplar";
 
         if ($conexion->query($sql)) {
-            echo "Libro borrado correctamente";
             return $mensaje;
         } else {
             echo "Error al borrar libro: " . $conexion->error;
@@ -343,13 +260,27 @@ function borrarLibro_MySQLi($numeroEjemplar)
 
 function modificarLibro_MySQLi($numero_ejemplar,$precio)
 {
-   
-}
+     $conexion = getConexionMySQLi();
 
+    if (!$conexion) {
+        return false;
+    }
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+        $sql = "UPDATE libros SET precio = $precio WHERE numero_ejemplar = $numero_ejemplar";
+        $resultado = $conexion->query($sql);
+
+        return true;
+
+        
+}
+}
 
 function modificarLibroAnyo_MySQLi($numero_ejemplar,$anyo_edicion)
 {
        $conexion = getConexionMYSQLI();
+ 
 
     if (is_array($anyo_edicion)) {
         $anyo_edicion = $anyo_edicion[0];
@@ -359,7 +290,7 @@ function modificarLibroAnyo_MySQLi($numero_ejemplar,$anyo_edicion)
     }
   
     $consulta = "UPDATE libros SET anyo_edicion = $anyo_edicion WHERE numero_ejemplar = $numero_ejemplar";
-     if ($conexionPDO->query($consulta)) {
+     if ($conexion->query($consulta)) {
 
        $librosanyos = $consulta;
        $libroanyo = $anyo_edicion;
@@ -374,35 +305,7 @@ function arrayFlotante($array) {
 }
 
 
-function modificarLibro($numero_ejemplar, $precio)
-{
 
-}
-
-
-
-function modificarLibroAnyo($numero_ejemplar, $anyo_edicion)
-{
-{
-    $conexionPDO = getConexionPDO();
-
-    if (is_array($anyo_edicion)) {
-        $anyo_edicion = $anyo_edicion[0];
-    }
-    if (is_array($numero_ejemplar)) {
-        $numero_ejemplar = $numero_ejemplar[0];
-    }
-  
-    $consulta = "UPDATE libros SET anyo_edicion = $anyo_edicion WHERE numero_ejemplar = $numero_ejemplar";
-     if ($conexionPDO->query($consulta)) {
-
-       $librosanyos = $consulta;
-       $libroanyo = $anyo_edicion;
-        return $librosanyos;
-        return $libroanyo;
-     }
-}
-}
 
 function getLibrosPrecio_MySQLi($libro)
 {
@@ -414,77 +317,42 @@ function getLibrosPrecio_MySQLi($libro)
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-        $numero_ejemplar = $libro;
 
-        $sql = "SELECT precio FROM libros WHERE numero_ejemplar = '$numero_ejemplar'";
+        $sql = "SELECT precio FROM libros WHERE numero_ejemplar = $libro";
         $resultado = $conexion->query($sql);
 
-        if ($resultado) {
-            $fila = $resultado->fetch_row();
-            if ($fila) {
-                return $fila[0];
-            }
-        }
+    $fila = $resultado->fetch_assoc();
+
+    if ($fila) {
+        return $fila['precio'];
     }
 
-    return false;
+    return false; 
+    }
+
 }
+
 
 function getLibrosAnyo_MySQLi($libro)
 {
     $conexion = getConexionMySQLi();
 
     if (!$conexion) {
-        return false;
+        return [];
     }
 
     $consulta = "SELECT numero_ejemplar, titulo, anyo_edicion FROM libros WHERE titulo = '$libro'";
     $datos = $conexion->query($consulta);
 
     if ($datos) {
-        $librosanyo = [];
-        while ($fila = $datos->fetch_object()) {
-            $librosanyo[] = $fila;
+        while ($fila = $datos->fetch_array(MYSQLI_ASSOC)) {
+            $librosanyos[] = $fila;
         }
-        return $librosanyo;
+        return $librosanyos;
     }
 
     return false;
   
-}
-
-
-function getLibrosPrecio($libro)
-{
-    $conexionPDO = getConexionPDO();
-    if($_SERVER["REQUEST_METHOD"] == "POST"){
-    
-    $numero_ejemplar = $libro;
-    
-    $sql = "SELECT precio FROM libros WHERE numero_ejemplar = '$numero_ejemplar'";
-    $resultado = $conexionPDO->query($sql);
-
-    if ($resultado) {
-        $precio = $resultado->fetchColumn();
-
-        
-    }
-return $precio;
-}
-}
-
-function getLibrosAnyo($libro)
-{
- $conexionPDO = getConexionPDO();
-
-    
-$consulta = "SELECT numero_ejemplar, titulo, anyo_edicion FROM libros WHERE titulo = '$libro'";
-$datos = $conexionPDO->query($consulta);
-
-    if($datos){
-        $libroanyo = $datos;
-        return $libroanyo;
-    }
 }
 
 

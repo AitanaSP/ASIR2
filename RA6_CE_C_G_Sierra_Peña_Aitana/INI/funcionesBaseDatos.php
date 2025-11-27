@@ -313,7 +313,7 @@ function borrarLibro($numero_ejemplar)
 }
 }
 
-function borrarLibro_MySQLi($numeroEjemplar)
+function borrarLibro_MySQLi($numero_Ejemplar)
 {
    $conexion = getConexionMySQLi();
 
@@ -324,7 +324,7 @@ function borrarLibro_MySQLi($numeroEjemplar)
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $libro = $numero_ejemplar;
-        $mensaje = getLibrosPrecio($libro);
+        $mensaje = getLibrosPrecio();
 
         $sql = "DELETE FROM libros WHERE numero_ejemplar = '$numero_ejemplar'";
 
